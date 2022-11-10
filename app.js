@@ -15,8 +15,18 @@ app.use(bodyParser.json());
 app.get("/users", (req, res) => {
   user
     .find({})
+    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
     .then((data) => res.status(200).send(data))
-    .catch((e) => console.log(e.message));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
+      } else {
+        console.log(3)
+        res.status(500).send({message: 'Произошла ошибка'})
+      }
+    });
 });
 
 // получение данных конкретного пользователя по id
@@ -42,14 +52,16 @@ app.post("/users", (req, res) => {
   const { name, about, avatar } = req.body;
   user
     .create({ name, about, avatar })
+    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
     .then((data) => res.status(200).send(data))
-    .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        console.log(3)
+        res.status(500).send({message: 'Произошла ошибка'})
       }
     });
 });
@@ -68,16 +80,16 @@ app.use((req, res, next) => {
 app.get("/cards", (req, res) => {
   card
     .find({})
-    .then((data) => {
-      res.status(200).send(data);
-    })
-    .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(404)
-          .send({ message: "Запрашиваемая карточка не найдена" });
+    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
+    .then((data) => res.status(200).send(data))
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        console.log(3)
+        res.status(500).send({message: 'Произошла ошибка'})
       }
     });
 });
@@ -88,14 +100,16 @@ app.post("/cards", (req, res) => {
 
   card
     .create({ name, link, owner })
+    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
     .then((data) => res.status(200).send(data))
-    .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        console.log(3)
+        res.status(500).send({message: 'Произошла ошибка'})
       }
     });
 });
@@ -103,14 +117,16 @@ app.post("/cards", (req, res) => {
 app.delete("/cards/:id", (req, res) => {
   card
     .findByIdAndRemove(req.params.id)
+    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
     .then((data) => res.status(200).send(data))
-    .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        console.log(3)
+        res.status(500).send({message: 'Произошла ошибка'})
       }
     });
 });
@@ -123,14 +139,16 @@ app.patch("/users/me", (req, res) => {
 
   user
     .findByIdAndUpdate(req.user._id, { name: name, about: about })
+    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
     .then((data) => res.status(200).send(data))
-    .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        console.log(3)
+        res.status(500).send({message: 'Произошла ошибка'})
       }
     });
 });
@@ -141,14 +159,16 @@ app.patch("/users/me/avatar", (req, res) => {
 
   user
     .findByIdAndUpdate(req.user._id, { avatar: avatar })
+    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
     .then((data) => res.status(200).send(data))
-    .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        console.log(3)
+        res.status(500).send({message: 'Произошла ошибка'})
       }
     });
 });
@@ -161,14 +181,16 @@ app.put("/cards/:cardId/likes", (req, res) => {
       { $addToSet: { likes: req.user._id } },
       { new: true }
     )
+    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
     .then((data) => res.status(200).send(data))
-    .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        console.log(3)
+        res.status(500).send({message: 'Произошла ошибка'})
       }
     });
 });
@@ -181,14 +203,16 @@ app.delete("/cards/:cardId/likes", (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true }
     )
+    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
     .then((data) => res.status(200).send(data))
-    .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        console.log(3)
+        res.status(500).send({message: 'Произошла ошибка'})
       }
     });
 });
