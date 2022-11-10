@@ -32,14 +32,7 @@ app.get("/users/:id", (req, res) => {
   user
     .findById(req.params.id)
     .then((data) => res.status(200).send(data))
-    .catch((e) => {
-      if (e.status === 404) {
-        res.status(404).send({ message: "Запрашиваемый пользователь не найден" });
-      } else if (e.status === 404) {
-        res.status(400).send({ message: "Передан невалидный id пользователя" });
-      } else {
-        res.status(500).send({ message: "Произошла ошибка" });
-      }
+    .catch((e) => {res.status(404).send({ message: "Запрашиваемый пользователь не найден" });
     });
 });
 
