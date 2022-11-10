@@ -17,12 +17,12 @@ app.get("/users", (req, res) => {
     .find({})
     .then((data) => res.status(200).send(data))
     .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(404)
-          .send({ message: "Запрашиваемый пользователь не найден" });
+      if (e.status === 404) {
+        res.status(404).send({ message: "Запрашиваемый пользователь не найден" });
+      } else if (e.status === 404) {
+        res.status(400).send({ message: "Передан невалидный id пользователя" });
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        res.status(500).send({ message: "Произошла ошибка" });
       }
     });
 });
