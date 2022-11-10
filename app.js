@@ -16,7 +16,7 @@ app.get("/users", (req, res) => {
   user
     .find({})
     .then((data) => res.status(200).send(data))
-    .catch((e) => {});
+    .catch((e) => console.log(e.message));
 });
 
 // получение данных конкретного пользователя по id
@@ -28,6 +28,11 @@ app.get("/users/:id", (req, res) => {
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
+      } else {
+        console.log(3)
+        res.status(500).send({message: 'Произошла ошибка'})
       }
     });
 });
