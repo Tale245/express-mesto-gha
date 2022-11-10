@@ -33,11 +33,7 @@ app.get("/users/:id", (req, res) => {
   user
     .findById(req.params.id)
     .then((data) => res.status(200).send(data))
-    .catch((err) => {
-      if(err.status === 400){
-       return res.status(400).send({message: "Передан невалидный id пользователя"})
-      }
-    });
+    .catch((err) => res.status(400).send({ message: "Передан невалидный id пользователя" }));
 });
 
 // создание пользователя
