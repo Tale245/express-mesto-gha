@@ -28,7 +28,7 @@ app.get("/users/:id", (req, res) => {
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(400).send({message: 'Передан невалидный id пользователя'})
-      } else if (err.status === 404) {
+      } else if (res.status === 404) {
         res.status(404).send({message: 'Пользователь не найден'})
       } else {
         res.status(500).send({message: 'Произошла ошибка'})
