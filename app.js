@@ -16,24 +16,24 @@ app.get("/users", (req, res) => {
   user
     .find({})
     .then((data) => res.status(200).send(data))
-    .catch((e) => {
-      console.log(e.name)
-      if (e.status === 404) {
-        res.status(404).send({ message: "Запрашиваемый пользователь не найден" });
-      } else if (e.status === 404) {
-        res.status(400).send({ message: "Передан невалидный id пользователя" });
-      } else {
-        res.status(500).send({ message: "Произошла ошибка" });
-      }
-    });
+    .catch((e) => {});
 });
 
 // получение данных конкретного пользователя по id
 app.get("/users/:id", (req, res) => {
   user
     .findById(req.params.id)
+    .orFail(() => new Error("Передан невалидный id пользователя"))
     .then((data) => res.status(200).send(data))
-    .catch((err) => res.status(400).send({ message: "Передан невалидный id пользователя" }));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({message: 'Передан невалидный id пользователя'})
+      } else if (err.status === 404) {
+        res.status(404).send({message: 'Пользователь не найден'})
+      } else {
+        res.status(500).send({message: 'Произошла ошибка'})
+      }
+    });
 });
 
 // создание пользователя
