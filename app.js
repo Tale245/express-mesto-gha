@@ -32,7 +32,15 @@ app.get("/users/:id", (req, res) => {
   user
     .findById(req.params.id)
     .then((data) => res.status(200).send(data))
-    .catch((e) => res.status(500).send(e));
+    .catch((e) => {
+      if (e.name === "ValidationError") {
+        return res
+          .status(404)
+          .send({ message: "Переданы некорректные данные" });
+      } else {
+        return res.status(500).send({ message: "Произошла ошибка" });
+      }
+    });
 });
 
 // создание пользователя
