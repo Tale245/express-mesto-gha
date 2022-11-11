@@ -136,16 +136,18 @@ app.delete("/cards/:id", (req, res) => {
 app.patch("/users/me", (req, res) => {
   const { name, about } = req.body;
   user
-    .findByIdAndUpdate(req.user._id, { name: name, about: about }, {runValidators: true})
+    .findByIdAndUpdate(
+      req.user._id,
+      { name: name, about: about },
+      { runValidators: true }
+    )
     .orFail(() => {
       throw new Error("Передан невалидный id пользователя");
     })
     .then(() => res.status(200).send(req.body))
     .catch((e) => {
       if (e.name === "ValidationError" || req.body.name.length < 2) {
-        res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+        res.status(400).send({ message: "Переданы некорректные данные" });
       } else {
         res.status(500).send({ message: "Произошла ошибка" });
       }
