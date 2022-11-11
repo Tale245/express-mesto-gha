@@ -165,7 +165,8 @@ app.put("/cards/:cardId/likes", (req, res) => {
     )
     .then((data) => res.status(200).send(data))
     .catch((e) => {
-      if (e.name === "ValidationError") {
+      console.log(e.name)
+      if (e.name === "CastError") {
         return res
           .status(400)
           .send({ message: "Переданы некорректные данные" });
