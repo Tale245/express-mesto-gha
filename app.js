@@ -23,17 +23,19 @@ app.get("/users", (req, res) => {
 app.get("/users/:id", (req, res) => {
   user
     .findById(req.params.id)
-    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
+    .orFail(() => {
+      throw new Error("Передан невалидный id пользователя");
+    })
     .then((data) => res.status(200).send(data))
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(400).send({message: 'Передан невалидный id пользователя'})
+        res.status(400).send({ message: "Передан невалидный id пользователя" });
       } else if (err.name === "Error") {
-        console.log(err.name)
-        res.status(404).send({message: 'Пользователь не найден'})
+        console.log(err.name);
+        res.status(404).send({ message: "Пользователь не найден" });
       } else {
-        console.log(err.name)
-        res.status(500).send({message: 'Произошла ошибка'})
+        console.log(err.name);
+        res.status(500).send({ message: "Произошла ошибка" });
       }
     });
 });
@@ -123,10 +125,14 @@ app.patch("/users/me", (req, res) => {
   const { name, about } = req.body;
 
   user
-    .findByIdAndUpdate(req.user._id, { name: name, about: about }, {runValidators: true })
+    .findByIdAndUpdate(
+      req.user._id,
+      { name: name, about: about },
+      { runValidators: true }
+    )
     .then(() => res.status(200).send(req.body))
     .catch((e) => {
-      console.log(e)
+      console.log(e);
       if (e.name === "ValidationError") {
         return res
           .status(400)
@@ -143,7 +149,7 @@ app.patch("/users/me/avatar", (req, res) => {
 
   user
     .findByIdAndUpdate(req.user._id, { avatar: avatar })
-    .then((data) => res.status(200).send(req.body))
+    .then(() => res.status(200).send(req.body))
     .catch((e) => {
       if (e.name === "ValidationError") {
         return res
@@ -163,15 +169,17 @@ app.put("/cards/:cardId/likes", (req, res) => {
       { $addToSet: { likes: req.user._id } },
       { new: true }
     )
+    .orFail(() => {
+      throw new Error("Передан невалидный id пользователя");
+    })
     .then((data) => res.status(200).send(data))
     .catch((e) => {
-      console.log(e.name)
       if (e.name === "CastError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+        res.status(400).send({ message: "Переданы некорректные данные" });
+      } else if (e.name === "Error") {
+        res.status(404).send({ message: "Карточки, которой вы пытаетесь поставить лайк, не существует" });
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        res.status(500).send({ message: "Произошла ошибка" });
       }
     });
 });
