@@ -177,7 +177,9 @@ app.put("/cards/:cardId/likes", (req, res) => {
       if (e.name === "CastError") {
         res.status(400).send({ message: "Переданы некорректные данные" });
       } else if (e.name === "Error") {
-        res.status(404).send({ message: "Карточки, которой вы пытаетесь поставить лайк, не существует" });
+        res.status(404).send({
+          message: "Запрашиваемая карточка не найдена",
+        });
       } else {
         res.status(500).send({ message: "Произошла ошибка" });
       }
@@ -192,14 +194,19 @@ app.delete("/cards/:cardId/likes", (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true }
     )
+    .orFail(() => {
+      throw new Error("Передан невалидный id пользователя");
+    })
     .then((data) => res.status(200).send(data))
     .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+      if (e.name === "CastError") {
+        res.status(400).send({ message: "Переданы некорректные данные" });
+      } else if (e.name === "Error") {
+        res.status(404).send({
+          message: "Запрашиваемая карточка не найдена",
+        });
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        res.status(500).send({ message: "Произошла ошибка" });
       }
     });
 });
