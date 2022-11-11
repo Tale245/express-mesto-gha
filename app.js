@@ -143,7 +143,7 @@ app.patch("/users/me/avatar", (req, res) => {
 
   user
     .findByIdAndUpdate(req.user._id, { avatar: avatar })
-    .then((data) => res.status(200).send(data))
+    .then((data) => res.status(200).send(req.body))
     .catch((e) => {
       if (e.name === "ValidationError") {
         return res
