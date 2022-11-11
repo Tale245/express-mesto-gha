@@ -23,17 +23,19 @@ app.get("/users", (req, res) => {
 app.get("/users/:id", (req, res) => {
   user
     .findById(req.params.id)
-    .orFail(() => {throw new Error("Передан невалидный id пользователя")})
+    .orFail(() => {
+      throw new Error("Передан невалидный id пользователя");
+    })
     .then((data) => res.status(200).send(data))
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(400).send({message: 'Передан невалидный id пользователя'})
+        res.status(400).send({ message: "Передан невалидный id пользователя" });
       } else if (err.name === "Error") {
-        console.log(err.name)
-        res.status(404).send({message: 'Пользователь не найден'})
+        console.log(err.name);
+        res.status(404).send({ message: "Пользователь не найден" });
       } else {
-        console.log(err.name)
-        res.status(500).send({message: 'Произошла ошибка'})
+        console.log(err.name);
+        res.status(500).send({ message: "Произошла ошибка" });
       }
     });
 });
@@ -43,6 +45,9 @@ app.post("/users", (req, res) => {
   const { name, about, avatar } = req.body;
   user
     .create({ name, about, avatar })
+    .orFail(() => {
+      throw new Error("Передан невалидный id пользователя");
+    })
     .then((data) => res.status(200).send(data))
     .catch((e) => {
       if (e.name === "ValidationError") {
@@ -69,6 +74,9 @@ app.use((req, res, next) => {
 app.get("/cards", (req, res) => {
   card
     .find({})
+    .orFail(() => {
+      throw new Error("Передан невалидный id пользователя");
+    })
     .then((data) => {
       res.status(200).send(data);
     })
@@ -89,6 +97,9 @@ app.post("/cards", (req, res) => {
 
   card
     .create({ name, link, owner })
+    .orFail(() => {
+      throw new Error("Передан невалидный id пользователя");
+    })
     .then((data) => res.status(200).send(data))
     .catch((e) => {
       if (e.name === "ValidationError") {
@@ -104,6 +115,9 @@ app.post("/cards", (req, res) => {
 app.delete("/cards/:id", (req, res) => {
   card
     .findByIdAndRemove(req.params.id)
+    .orFail(() => {
+      throw new Error("Передан невалидный id пользователя");
+    })
     .then((data) => res.status(200).send(data))
     .catch((e) => {
       if (e.name === "ValidationError") {
@@ -121,17 +135,19 @@ app.delete("/cards/:id", (req, res) => {
 // обновление профиля
 app.patch("/users/me", (req, res) => {
   const { name, about } = req.body;
-
   user
-    .findByIdAndUpdate(req.user._id, { name: name, about: about })
+    .findByIdAndUpdate(req.user._id, { name: name, about: about }, {runValidators: true})
+    .orFail(() => {
+      throw new Error("Передан невалидный id пользователя");
+    })
     .then(() => res.status(200).send(req.body))
     .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
+      if (e.name === "ValidationError" || req.body.name.length < 2) {
+        res
           .status(400)
           .send({ message: "Переданы некорректные данные" });
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        res.status(500).send({ message: "Произошла ошибка" });
       }
     });
 });
