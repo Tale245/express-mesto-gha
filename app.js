@@ -28,10 +28,11 @@ app.get("/users/:id", (req, res) => {
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(400).send({message: 'Передан невалидный id пользователя'})
-      } else if (err === 404) {
+      } else if (err.name === "Error") {
+        console.log(err.name)
         res.status(404).send({message: 'Пользователь не найден'})
       } else {
-        console.log(3)
+        console.log(err.name)
         res.status(500).send({message: 'Произошла ошибка'})
       }
     });
