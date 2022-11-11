@@ -94,11 +94,9 @@ app.post("/cards", (req, res) => {
     .then((data) => res.status(200).send(data))
     .catch((e) => {
       if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+        res.status(400).send({ message: "Переданы некорректные данные" });
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        res.status(500).send({ message: "Произошла ошибка" });
       }
     });
 });
@@ -106,14 +104,18 @@ app.post("/cards", (req, res) => {
 app.delete("/cards/:id", (req, res) => {
   card
     .findByIdAndRemove(req.params.id)
+    .orFail(() => {
+      throw new Error("Передан невалидный id пользователя");
+    })
     .then((data) => res.status(200).send(data))
     .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+      console.log(e.name);
+      if (e.name === "CastError") {
+        res.status(400).send({ message: "Переданы некорректные данные" });
+      } else if (e.name === "Error") {
+        res.status(404).send({ message: "Запрашиваемая карточка не найдена" });
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        res.status(500).send({ message: "Произошла ошибка" });
       }
     });
 });
