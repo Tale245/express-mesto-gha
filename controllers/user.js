@@ -1,28 +1,32 @@
 const {
-  NOT__FOUND, VALIDATION__ERROR, STATUS__OK, UNKNOW__ERROR,
+  NOT__FOUND_ERROR, BAD__REQUEST_ERROR, STATUS__OK, INTERNAL__SERVER_ERROR,
 } = require('../constants/constants');
+
+const BadRequestError = require('../Error/BadRequestError');
+
+const error = new BadRequestError();
 
 const User = require('../models/user');
 
 module.exports.getUser = (req, res) => {
   User.find({})
     .then((data) => res.status(STATUS__OK).send(data))
-    .catch(() => res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.getUserId = (req, res) => {
   User.findById(req.params.id)
     .orFail(() => {
-      throw new Error('Передан невалидный id пользователя');
+      throw error('Передан невалидный id пользователя');
     })
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(VALIDATION__ERROR).send({ message: 'Передан невалидный id пользователя' });
-      } else if (err.statusCode === NOT__FOUND) {
-        res.status(NOT__FOUND).send({ message: 'Пользователь не найден' });
+        res.status(BAD__REQUEST_ERROR).send({ message: 'Передан невалидный id пользователя' });
+      } else if (error.statusCode === NOT__FOUND_ERROR) {
+        res.status(NOT__FOUND_ERROR).send({ message: 'Пользователь не найден' });
       } else {
-        res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
+        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -35,10 +39,10 @@ module.exports.createUser = (req, res) => {
     .catch((e) => {
       if (e.name === 'ValidationError') {
         res
-          .status(VALIDATION__ERROR)
+          .status(BAD__REQUEST_ERROR)
           .send({ message: 'Переданы некорректные данные' });
       } else {
-        return res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
+        return res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -56,10 +60,10 @@ module.exports.updateProfile = (req, res) => {
     .catch((e) => {
       if (e.name === 'ValidationError') {
         res
-          .status(VALIDATION__ERROR)
+          .status(BAD__REQUEST_ERROR)
           .send({ message: 'Переданы некорректные данные' });
       } else {
-        return res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
+        return res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -73,10 +77,10 @@ module.exports.updateAvatar = (req, res) => {
     .catch((e) => {
       if (e.name === 'ValidationError') {
         res
-          .status(VALIDATION__ERROR)
+          .status(BAD__REQUEST_ERROR)
           .send({ message: 'Переданы некорректные данные' });
       } else {
-        return res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
+        return res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };

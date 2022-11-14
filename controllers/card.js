@@ -1,8 +1,12 @@
 const Сard = require('../models/card');
 
 const {
-  NOT__FOUND, VALIDATION__ERROR, STATUS__OK, UNKNOW__ERROR,
+  NOT__FOUND_ERROR, BAD__REQUEST_ERROR, STATUS__OK, INTERNAL__SERVER_ERROR,
 } = require('../constants/constants');
+
+const BadRequestError = require('../Error/BadRequestError');
+
+const error = new BadRequestError();
 
 module.exports.getCards = (req, res) => {
   Сard
@@ -10,7 +14,7 @@ module.exports.getCards = (req, res) => {
     .then((data) => {
       res.status(STATUS__OK).send(data);
     })
-    .catch(() => res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -21,9 +25,9 @@ module.exports.createCard = (req, res) => {
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'ValidationError') {
-        res.status(VALIDATION__ERROR).send({ message: 'Переданы некорректные данные' });
+        res.status(BAD__REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       } else {
-        res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
+        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -32,16 +36,16 @@ module.exports.deleteCard = (req, res) => {
   Сard
     .findByIdAndRemove(req.params.id)
     .orFail(() => {
-      throw new Error('Передан невалидный id пользователя');
+      throw error('Передан невалидный id пользователя');
     })
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'CastError') {
-        res.status(VALIDATION__ERROR).send({ message: 'Переданы некорректные данные' });
-      } else if (e.statusCode === NOT__FOUND) {
-        res.status(NOT__FOUND).send({ message: 'Запрашиваемая карточка не найдена' });
+        res.status(BAD__REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
+      } else if (error.statusCode === NOT__FOUND_ERROR) {
+        res.status(NOT__FOUND_ERROR).send({ message: 'Запрашиваемая карточка не найдена' });
       } else {
-        res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
+        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -54,18 +58,18 @@ module.exports.likeCard = (req, res) => {
       { new: true },
     )
     .orFail(() => {
-      throw new Error('Передан невалидный id пользователя');
+      throw error('Передан невалидный id пользователя');
     })
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'CastError') {
-        res.status(VALIDATION__ERROR).send({ message: 'Переданы некорректные данные' });
-      } else if (e.statusCode === NOT__FOUND) {
-        res.status(NOT__FOUND).send({
+        res.status(BAD__REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
+      } else if (error.statusCode === NOT__FOUND_ERROR) {
+        res.status(NOT__FOUND_ERROR).send({
           message: 'Запрашиваемая карточка не найдена',
         });
       } else {
-        res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
+        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -78,18 +82,18 @@ module.exports.dislikeCard = (req, res) => {
       { new: true },
     )
     .orFail(() => {
-      throw new Error('Передан невалидный id пользователя');
+      throw error('Передан невалидный id пользователя');
     })
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'CastError') {
-        res.status(VALIDATION__ERROR).send({ message: 'Переданы некорректные данные' });
-      } else if (e.statusCode === NOT__FOUND) {
-        res.status(NOT__FOUND).send({
+        res.status(BAD__REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
+      } else if (error.statusCode === NOT__FOUND_ERROR) {
+        res.status(NOT__FOUND_ERROR).send({
           message: 'Запрашиваемая карточка не найдена',
         });
       } else {
-        res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
+        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
