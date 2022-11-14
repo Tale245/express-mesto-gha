@@ -1,26 +1,28 @@
-const User = require("../models/user");
+const {
+  NOT__FOUND, VALIDATION__ERROR, STATUS__OK, UNKNOW__ERROR,
+} = require('../constants/constants');
+
+const User = require('../models/user');
 
 module.exports.getUser = (req, res) => {
   User.find({})
-    .then((data) => res.status(200).send(data))
-    .catch((e) => console.log(e.message));
+    .then((data) => res.status(STATUS__OK).send(data))
+    .catch(() => res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.getUserId = (req, res) => {
   User.findById(req.params.id)
     .orFail(() => {
-      throw new Error("Передан невалидный id пользователя");
+      throw new Error('Передан невалидный id пользователя');
     })
-    .then((data) => res.status(200).send(data))
+    .then((data) => res.status(STATUS__OK).send(data))
     .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(400).send({ message: "Передан невалидный id пользователя" });
-      } else if (err.name === "Error") {
-        console.log(err.name);
-        res.status(404).send({ message: "Пользователь не найден" });
+      if (err.name === 'CastError') {
+        res.status(VALIDATION__ERROR).send({ message: 'Передан невалидный id пользователя' });
+      } else if (err.statusCode === NOT__FOUND) {
+        res.status(NOT__FOUND).send({ message: 'Пользователь не найден' });
       } else {
-        console.log(err.name);
-        res.status(500).send({ message: "Произошла ошибка" });
+        res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -28,14 +30,15 @@ module.exports.getUserId = (req, res) => {
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((data) => res.status(200).send(data))
+    .then((data) => res.status(STATUS__OK).send(data))
+    // eslint-disable-next-line consistent-return
     .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+      if (e.name === 'ValidationError') {
+        res
+          .status(VALIDATION__ERROR)
+          .send({ message: 'Переданы некорректные данные' });
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        return res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -45,18 +48,18 @@ module.exports.updateProfile = (req, res) => {
 
   User.findByIdAndUpdate(
     req.user._id,
-    { name: name, about: about },
-    { runValidators: true }
+    { name, about },
+    { runValidators: true },
   )
-    .then(() => res.status(200).send(req.body))
+    .then(() => res.status(STATUS__OK).send({ name, about }))
+    // eslint-disable-next-line consistent-return
     .catch((e) => {
-      console.log(e);
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+      if (e.name === 'ValidationError') {
+        res
+          .status(VALIDATION__ERROR)
+          .send({ message: 'Переданы некорректные данные' });
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        return res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -64,15 +67,16 @@ module.exports.updateProfile = (req, res) => {
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { avatar: avatar })
-    .then(() => res.status(200).send(req.body))
+  User.findByIdAndUpdate(req.user._id, { avatar })
+    .then(() => res.status(STATUS__OK).send(req.body))
+    // eslint-disable-next-line consistent-return
     .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res
-          .status(400)
-          .send({ message: "Переданы некорректные данные" });
+      if (e.name === 'ValidationError') {
+        res
+          .status(VALIDATION__ERROR)
+          .send({ message: 'Переданы некорректные данные' });
       } else {
-        return res.status(500).send({ message: "Произошла ошибка" });
+        return res.status(UNKNOW__ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
