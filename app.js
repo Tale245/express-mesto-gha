@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const userRouter = require('./routes/user');
 const cardRouter = require('./routes/card');
-const { NOT__FOUND } = require('./constants/constants');
+const { NOT__FOUND_ERROR } = require('./constants/constants');
 
 const app = express();
 
@@ -25,7 +25,7 @@ app.use('/', userRouter);
 app.use('/', cardRouter);
 
 app.use((req, res) => {
-  res.status(NOT__FOUND).send({ message: 'Страница по указанному маршруту не найдена' });
+  res.status(NOT__FOUND_ERROR).send({ message: 'Страница по указанному маршруту не найдена' });
 });
 
 const { PORT = 3000 } = process.env;
