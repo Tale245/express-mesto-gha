@@ -6,11 +6,10 @@ const {
 
 const BadRequestError = require('../Error/BadRequestError');
 
-const error = new BadRequestError();
-
 module.exports.getCards = (req, res) => {
   Сard
     .find({})
+    .populate(['owner', 'likes'])
     .then((data) => {
       res.status(STATUS__OK).send(data);
     })
@@ -36,13 +35,13 @@ module.exports.deleteCard = (req, res) => {
   Сard
     .findByIdAndRemove(req.params.id)
     .orFail(() => {
-      throw error('Передан невалидный id пользователя');
+      throw new BadRequestError('Передан невалидный id пользователя');
     })
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'CastError') {
         res.status(BAD__REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
-      } else if (error.statusCode === NOT__FOUND_ERROR) {
+      } else if (e.statusCode === NOT__FOUND_ERROR) {
         res.status(NOT__FOUND_ERROR).send({ message: 'Запрашиваемая карточка не найдена' });
       } else {
         res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
@@ -58,13 +57,13 @@ module.exports.likeCard = (req, res) => {
       { new: true },
     )
     .orFail(() => {
-      throw error('Передан невалидный id пользователя');
+      throw new BadRequestError('Передан невалидный id пользователя');
     })
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'CastError') {
         res.status(BAD__REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
-      } else if (error.statusCode === NOT__FOUND_ERROR) {
+      } else if (e.statusCode === NOT__FOUND_ERROR) {
         res.status(NOT__FOUND_ERROR).send({
           message: 'Запрашиваемая карточка не найдена',
         });
@@ -82,13 +81,13 @@ module.exports.dislikeCard = (req, res) => {
       { new: true },
     )
     .orFail(() => {
-      throw error('Передан невалидный id пользователя');
+      throw new BadRequestError('Передан невалидный id пользователя');
     })
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'CastError') {
         res.status(BAD__REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
-      } else if (error.statusCode === NOT__FOUND_ERROR) {
+      } else if (e.statusCode === NOT__FOUND_ERROR) {
         res.status(NOT__FOUND_ERROR).send({
           message: 'Запрашиваемая карточка не найдена',
         });

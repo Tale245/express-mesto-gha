@@ -4,8 +4,6 @@ const {
 
 const BadRequestError = require('../Error/BadRequestError');
 
-const error = new BadRequestError();
-
 const User = require('../models/user');
 
 module.exports.getUser = (req, res) => {
@@ -17,13 +15,13 @@ module.exports.getUser = (req, res) => {
 module.exports.getUserId = (req, res) => {
   User.findById(req.params.id)
     .orFail(() => {
-      throw error('Передан невалидный id пользователя');
+      throw new BadRequestError('Передан невалидный id пользователя');
     })
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(BAD__REQUEST_ERROR).send({ message: 'Передан невалидный id пользователя' });
-      } else if (error.statusCode === NOT__FOUND_ERROR) {
+      } else if (err.statusCode === NOT__FOUND_ERROR) {
         res.status(NOT__FOUND_ERROR).send({ message: 'Пользователь не найден' });
       } else {
         res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
@@ -35,14 +33,13 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((data) => res.status(STATUS__OK).send(data))
-    // eslint-disable-next-line consistent-return
     .catch((e) => {
       if (e.name === 'ValidationError') {
         res
           .status(BAD__REQUEST_ERROR)
           .send({ message: 'Переданы некорректные данные' });
       } else {
-        return res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -53,17 +50,21 @@ module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    { runValidators: true },
+    {
+      new: true,
+      runValidators: true,
+    },
   )
-    .then(() => res.status(STATUS__OK).send({ name, about }))
-    // eslint-disable-next-line consistent-return
+    .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'ValidationError') {
         res
           .status(BAD__REQUEST_ERROR)
           .send({ message: 'Переданы некорректные данные' });
+      } else if (e.name === 'CastError') {
+        res.status(BAD__REQUEST_ERROR).send({ message: 'Передан невалидный id пользователя' });
       } else {
-        return res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -71,16 +72,15 @@ module.exports.updateProfile = (req, res) => {
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { avatar })
-    .then(() => res.status(STATUS__OK).send(req.body))
-    // eslint-disable-next-line consistent-return
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'ValidationError') {
         res
           .status(BAD__REQUEST_ERROR)
           .send({ message: 'Переданы некорректные данные' });
       } else {
-        return res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
     });
 };

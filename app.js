@@ -31,6 +31,5 @@ app.use((req, res) => {
 const { PORT = 3000 } = process.env;
 
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
   console.log(`server has been started on port ${PORT}`);
 });
