@@ -79,6 +79,8 @@ module.exports.updateAvatar = (req, res) => {
         res
           .status(BAD__REQUEST_ERROR)
           .send({ message: 'Переданы некорректные данные' });
+      } else if (e.name === 'CastError') {
+        res.status(BAD__REQUEST_ERROR).send({ message: 'Передан невалидный id пользователя' });
       } else {
         res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
