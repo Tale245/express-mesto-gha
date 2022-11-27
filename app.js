@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const userRouter = require('./routes/user');
 const cardRouter = require('./routes/card');
+const auth = require('./middlewares/auth');
+const { login } = require('./controllers/login');
+const { createUser } = require('./controllers/user');
 const { NOT__FOUND_ERROR } = require('./constants/constants');
 
 const app = express();
@@ -12,14 +15,11 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(bodyParser.json());
 
 // хардкод айди пользователя, создавшего краточку
-app.use((req, res, next) => {
-  req.user = {
-    _id: '636974c5ff0cbf5637c13f3f', // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
-  next();
-});
 
-// РОУТЫ ДАННЫХ ПОЛЬЗОВАТЕЛЯ
+app.post('/signin', login);
+app.post('/signup', createUser);
+
+app.use(auth);
 
 app.use('/', userRouter);
 app.use('/', cardRouter);

@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const {
   NOT__FOUND_ERROR, BAD__REQUEST_ERROR, STATUS__OK, INTERNAL__SERVER_ERROR,
 } = require('../constants/constants');
@@ -30,17 +31,25 @@ module.exports.getUserId = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((data) => res.status(STATUS__OK).send(data))
-    .catch((e) => {
-      if (e.name === 'ValidationError') {
-        res
-          .status(BAD__REQUEST_ERROR)
-          .send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
-      }
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      User.create({
+        name, about, avatar, email, password: hash,
+      })
+        .then((data) => res.status(STATUS__OK).send(data))
+        .catch((e) => {
+          if (e.name === 'ValidationError') {
+            res
+              .status(BAD__REQUEST_ERROR)
+              .send({ message: 'Переданы некорректные данные' });
+          } else {
+            res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+          }
+        });
     });
 };
 
@@ -81,6 +90,22 @@ module.exports.updateAvatar = (req, res) => {
           .send({ message: 'Переданы некорректные данные' });
       } else if (e.name === 'CastError') {
         res.status(BAD__REQUEST_ERROR).send({ message: 'Передан невалидный id пользователя' });
+      } else {
+        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+      }
+    });
+};
+module.exports.userInfo = (req, res) => {
+  User.findById(req.user._id)
+    .orFail(() => {
+      throw new BadRequestError('Передан невалидный id пользователя');
+    })
+    .then((data) => res.status(STATUS__OK).send(data))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD__REQUEST_ERROR).send({ message: 'Передан невалидный id пользователя' });
+      } else if (err.statusCode === NOT__FOUND_ERROR) {
+        res.status(NOT__FOUND_ERROR).send({ message: 'Пользователь не найден' });
       } else {
         res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
       }
