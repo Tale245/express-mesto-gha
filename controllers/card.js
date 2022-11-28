@@ -32,13 +32,29 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Сard
-    .findByIdAndRemove(req.params.id)
-    .orFail(() => {
-      throw new BadRequestError('Передан невалидный id пользователя');
-    })
-    .then((data) => res.status(STATUS__OK).send(data))
-    .catch((e) => {
+  Сard.findById(req.params.id)
+    .populate('owner')
+    .then((data) => {
+      if (data.owner.id === req.user._id) {
+        Сard
+          .findByIdAndRemove(req.params.id)
+          .orFail(() => {
+            throw new BadRequestError('Передан невалидный id пользователя');
+          })
+          .then(() => res.status(STATUS__OK).send(data))
+          .catch((e) => {
+            if (e.name === 'CastError') {
+              res.status(BAD__REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
+            } else if (e.statusCode === NOT__FOUND_ERROR) {
+              res.status(NOT__FOUND_ERROR).send({ message: 'Запрашиваемая карточка не найдена' });
+            } else {
+              res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+            }
+          });
+      } else {
+        res.status(403).send({ message: 'Вы не можете удалить чужую карточку' });
+      }
+    }).catch((e) => {
       if (e.name === 'CastError') {
         res.status(BAD__REQUEST_ERROR).send({ message: 'Переданы некорректные данные' });
       } else if (e.statusCode === NOT__FOUND_ERROR) {
