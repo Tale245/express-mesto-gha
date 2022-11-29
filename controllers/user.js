@@ -1,36 +1,39 @@
 const bcrypt = require('bcryptjs');
 const {
-  NOT__FOUND_ERROR, BAD__REQUEST_ERROR, STATUS__OK, INTERNAL__SERVER_ERROR,
+  NOT__FOUND_ERROR, BAD__REQUEST_ERROR, STATUS__OK,
 } = require('../constants/constants');
 
+const NotFoundError = require('../Error/NotFoundError');
 const BadRequestError = require('../Error/BadRequestError');
 
 const User = require('../models/user');
 
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   User.find({})
     .then((data) => res.status(STATUS__OK).send(data))
-    .catch(() => res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' }));
+    .catch(() => {
+      next(new BadRequestError('Переданы некорректные данные'));
+    });
 };
 
-module.exports.getUserId = (req, res) => {
+module.exports.getUserId = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(() => {
-      throw new BadRequestError('Передан невалидный id пользователя');
+      throw new NotFoundError('Передан невалидный id пользователя');
     })
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD__REQUEST_ERROR).send({ message: 'Передан невалидный id пользователя' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else if (err.statusCode === NOT__FOUND_ERROR) {
-        res.status(NOT__FOUND_ERROR).send({ message: 'Пользователь не найден' });
+        next(new NotFoundError('Запрашиваемая карточка не найдена'));
       } else {
-        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -43,17 +46,15 @@ module.exports.createUser = (req, res) => {
         .then((data) => res.status(STATUS__OK).send(data))
         .catch((e) => {
           if (e.name === 'ValidationError') {
-            res
-              .status(BAD__REQUEST_ERROR)
-              .send({ message: 'Переданы некорректные данные' });
+            next(new BadRequestError('Переданы некорректные данные'));
           } else {
-            res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+            next(e);
           }
         });
     });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -71,14 +72,14 @@ module.exports.updateProfile = (req, res) => {
           .status(BAD__REQUEST_ERROR)
           .send({ message: 'Переданы некорректные данные' });
       } else if (e.name === 'CastError') {
-        res.status(BAD__REQUEST_ERROR).send({ message: 'Передан невалидный id пользователя' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+        next(e);
       }
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
@@ -89,25 +90,25 @@ module.exports.updateAvatar = (req, res) => {
           .status(BAD__REQUEST_ERROR)
           .send({ message: 'Переданы некорректные данные' });
       } else if (e.name === 'CastError') {
-        res.status(BAD__REQUEST_ERROR).send({ message: 'Передан невалидный id пользователя' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+        next(e);
       }
     });
 };
-module.exports.userInfo = (req, res) => {
+module.exports.userInfo = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      throw new BadRequestError('Передан невалидный id пользователя');
+      throw new NotFoundError('Передан невалидный id пользователя');
     })
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD__REQUEST_ERROR).send({ message: 'Передан невалидный id пользователя' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else if (err.statusCode === NOT__FOUND_ERROR) {
-        res.status(NOT__FOUND_ERROR).send({ message: 'Пользователь не найден' });
+        throw new NotFoundError('Пользователь не найден');
       } else {
-        res.status(INTERNAL__SERVER_ERROR).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };
