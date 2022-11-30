@@ -8,6 +8,8 @@ const {
   userInfo,
 } = require('../controllers/user');
 
+const urlRegExp = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
+
 router.get('/users', getUser);
 router.get('/users/me', celebrate({
   body: Joi.object().keys({
@@ -28,7 +30,7 @@ router.patch('/users/me', celebrate({
 // router.patch('/users/me/avatar', updateAvatar);
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required(),
+    avatar: Joi.string().required().pattern(urlRegExp),
   }),
 }), updateAvatar);
 

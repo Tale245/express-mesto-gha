@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { isEmail } = require('validator');
 
-const urlRegExp = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
-
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -24,11 +22,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-      validate: {
-        validator(v) {
-          return urlRegExp.test(v);
-        },
-      },
     },
     email: {
       type: String,
