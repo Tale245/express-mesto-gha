@@ -8,7 +8,7 @@ const {
   userInfo,
 } = require('../controllers/user');
 
-const urlRegExp = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
+const { urlRegExp } = require('../constants/constants');
 
 router.get('/users', getUser);
 router.get('/users/me', celebrate({
