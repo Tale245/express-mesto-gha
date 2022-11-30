@@ -5,6 +5,7 @@ const {
 
 const NotFoundError = require('../Error/NotFoundError');
 const BadRequestError = require('../Error/BadRequestError');
+const SignupError = require('../Error/SignupError');
 
 const User = require('../models/user');
 
@@ -51,6 +52,8 @@ module.exports.createUser = (req, res, next) => {
         .catch((e) => {
           if (e.name === 'ValidationError') {
             next(new BadRequestError('Переданы некорректные данные'));
+          } else if (e.code === 11000) {
+            next(new SignupError('Email адрес занят, используйте другой, либо войдите в аккаунт'));
           } else {
             next(e);
           }
