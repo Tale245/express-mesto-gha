@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
 const userRouter = require('./routes/user');
 const cardRouter = require('./routes/card');
 const auth = require('./middlewares/auth');
@@ -36,6 +37,8 @@ app.use('/', cardRouter);
 app.use((req, res) => {
   res.status(NOT__FOUND_ERROR).send({ message: 'Страница по указанному маршруту не найдена' });
 });
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   const { statusCode = INTERNAL__SERVER_ERROR, message } = err;
