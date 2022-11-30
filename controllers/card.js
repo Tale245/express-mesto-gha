@@ -38,27 +38,23 @@ module.exports.createCard = (req, res, next) => {
 module.exports.deleteCard = (req, res, next) => {
   Сard.findById(req.params.id)
     .populate('owner')
+    .orFail(() => {
+      throw new NotFoundError('Запрашиваемая карточка не найдена');
+    })
     .then((data) => {
       if (data.owner.id !== req.user._id) {
         throw new ForbiddenError('Отказано в доступе');
-      }
-      Сard.findByIdAndRemove(data.id)
-        .then(() => res.status(STATUS__OK).send(data))
-        .catch((e) => {
-          if (e.name === 'CastError') {
-            next(new BadRequestError('Переданы некорректные данные'));
-          } else if (e.statusCode === NOT__FOUND_ERROR) {
-            next(new NotFoundError('Запрашиваемая карточка не найдена'));
-          } else {
+      } else {
+        Сard.findByIdAndRemove(data.id)
+          .then(() => res.status(STATUS__OK).send(data))
+          .catch((e) => {
             next(e);
-          }
-        });
+          });
+      }
     })
     .catch((e) => {
       if (e.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
-      } else if (e.statusCode === NOT__FOUND_ERROR) {
-        next(new NotFoundError('Запрашиваемая карточка не найдена'));
       } else {
         next(e);
       }
