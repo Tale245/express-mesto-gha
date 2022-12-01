@@ -8,7 +8,7 @@ const cardRouter = require('./routes/card');
 const auth = require('./middlewares/auth');
 const { login } = require('./controllers/login');
 const { createUser } = require('./controllers/user');
-const { NOT__FOUND_ERROR, INTERNAL__SERVER_ERROR } = require('./constants/constants');
+const { INTERNAL__SERVER_ERROR } = require('./constants/constants');
 const NotFoundError = require('./Error/NotFoundError');
 const { urlRegExp } = require('./constants/constants');
 
