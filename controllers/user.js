@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const {
-  NOT__FOUND_ERROR, BAD__REQUEST_ERROR, STATUS__OK,
+  STATUS__OK,
 } = require('../constants/constants');
 
 const NotFoundError = require('../Error/NotFoundError');
@@ -12,9 +12,7 @@ const User = require('../models/user');
 module.exports.getUser = (req, res, next) => {
   User.find({})
     .then((data) => res.status(STATUS__OK).send(data))
-    .catch(() => {
-      next(new BadRequestError('Переданы некорректные данные'));
-    });
+    .catch(next);
 };
 
 module.exports.getUserId = (req, res, next) => {
@@ -26,8 +24,6 @@ module.exports.getUserId = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
-      } else if (err.statusCode === NOT__FOUND_ERROR) {
-        next(new NotFoundError('Запрашиваемая карточка не найдена'));
       } else {
         next(err);
       }
@@ -58,7 +54,7 @@ module.exports.createUser = (req, res, next) => {
             next(e);
           }
         });
-    });
+    }).catch(next);
 };
 
 module.exports.updateProfile = (req, res, next) => {
@@ -75,9 +71,7 @@ module.exports.updateProfile = (req, res, next) => {
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'ValidationError') {
-        res
-          .status(BAD__REQUEST_ERROR)
-          .send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else if (e.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
@@ -93,9 +87,7 @@ module.exports.updateAvatar = (req, res, next) => {
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'ValidationError') {
-        res
-          .status(BAD__REQUEST_ERROR)
-          .send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else if (e.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
@@ -112,8 +104,6 @@ module.exports.userInfo = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
-      } else if (err.statusCode === NOT__FOUND_ERROR) {
-        throw new NotFoundError('Пользователь не найден');
       } else {
         next(err);
       }

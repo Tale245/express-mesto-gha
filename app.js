@@ -9,6 +9,7 @@ const auth = require('./middlewares/auth');
 const { login } = require('./controllers/login');
 const { createUser } = require('./controllers/user');
 const { NOT__FOUND_ERROR, INTERNAL__SERVER_ERROR } = require('./constants/constants');
+const NotFoundError = require('./Error/NotFoundError');
 const { urlRegExp } = require('./constants/constants');
 
 const app = express();
@@ -23,7 +24,7 @@ app.use(bodyParser.json());
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
   }),
 }), login);
 app.post('/signup', celebrate({
@@ -32,7 +33,7 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(urlRegExp),
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
   }),
 }), createUser);
 
@@ -41,8 +42,8 @@ app.use(auth);
 app.use('/', userRouter);
 app.use('/', cardRouter);
 
-app.use((req, res) => {
-  res.status(NOT__FOUND_ERROR).send({ message: 'Страница по указанному маршруту не найдена' });
+app.use((req, res, next) => {
+  next(new NotFoundError('Страница по указанному маршруту не найдена'));
 });
 
 app.use(errors());

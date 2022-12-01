@@ -11,14 +11,10 @@ const {
 const { urlRegExp } = require('../constants/constants');
 
 router.get('/users', getUser);
-router.get('/users/me', celebrate({
-  body: Joi.object().keys({
-    me: Joi.string().alphanum().length(24),
-  }),
-}), userInfo);
+router.get('/users/me', userInfo);
 router.get('/users/:id', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().required().alphanum().length(24),
+    id: Joi.string().length(24).hex().required(),
   }),
 }), getUserId);
 router.patch('/users/me', celebrate({
