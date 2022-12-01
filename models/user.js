@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { isEmail, isUrl } = require('validator');
+const { isEmail } = require('validator');
+const { urlRegExp } = require('../constants/constants');
 
 const userSchema = new mongoose.Schema(
   {
@@ -23,7 +24,9 @@ const userSchema = new mongoose.Schema(
       required: false,
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
       validate: {
-        validator: (v) => isUrl(v),
+        validator(v) {
+          return urlRegExp.test(v);
+        },
       },
     },
     email: {

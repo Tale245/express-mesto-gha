@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { isUrl } = require('validator');
+const { urlRegExp } = require('../constants/constants');
 
 const objectId = mongoose.Schema.Types.ObjectId;
 
@@ -15,7 +15,9 @@ const cardSchema = new mongoose.Schema(
       type: String,
       required: true,
       validate: {
-        validator: (v) => isUrl(v),
+        validator(v) {
+          return urlRegExp.test(v);
+        },
       },
     },
     owner: {

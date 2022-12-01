@@ -54,7 +54,9 @@ module.exports.createUser = (req, res, next) => {
             next(e);
           }
         });
-    }).catch(next);
+    }).catch((e) => {
+      next(e);
+    });
 };
 
 module.exports.updateProfile = (req, res, next) => {
