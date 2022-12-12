@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
+const cors = require('cors');
 const userRouter = require('./routes/user');
 const cardRouter = require('./routes/card');
 const auth = require('./middlewares/auth');
@@ -11,14 +12,29 @@ const { createUser } = require('./controllers/user');
 const { INTERNAL__SERVER_ERROR } = require('./constants/constants');
 const NotFoundError = require('./Error/NotFoundError');
 const { urlRegExp } = require('./constants/constants');
+const { requestLogger, errorLogger } = require('./middlewares/Logger');
 
 const app = express();
+mongoose.connect('mongodb://127.0.0.1/mestodb');
 
-mongoose.connect('mongodb://localhost:27017/mestodb');
+const options = {
+  origin: [
+    'http://localhost:3000',
+  ],
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
+  credentials: true,
+};
+
+app.use('*', cors(options));
 
 app.use(bodyParser.json());
 
-// хардкод айди пользователя, создавшего краточку
+// Логгер запросов
+
+app.use(requestLogger);
 
 // app.post('/signin', login);
 app.post('/signin', celebrate({
@@ -46,6 +62,8 @@ app.use((req, res, next) => {
   next(new NotFoundError('Страница по указанному маршруту не найдена'));
 });
 
+app.use(errorLogger);
+
 app.use(errors());
 
 app.use((err, req, res, next) => {
@@ -58,7 +76,7 @@ app.use((err, req, res, next) => {
   next();
 });
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3001 } = process.env;
 
 app.listen(PORT, () => {
   console.log(`server has been started on port ${PORT}`);
