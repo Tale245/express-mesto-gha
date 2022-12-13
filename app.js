@@ -20,6 +20,8 @@ mongoose.connect('mongodb://127.0.0.1/mestodb');
 const options = {
   origin: [
     'http://localhost:3000',
+    'https://158.160.17.162',
+    'https://tale245.github.io',
   ],
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   preflightContinue: false,
