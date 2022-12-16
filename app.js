@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -20,7 +21,7 @@ mongoose.connect('mongodb://127.0.0.1/mestodb');
 const options = {
   origin: [
     'http://localhost:3000',
-    'http://mesto479.nomoredomains.club',
+    'https://mesto479.nomoredomains.club',
     'https://tale245.github.io',
   ],
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
