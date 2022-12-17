@@ -20,12 +20,16 @@ module.exports.getCards = (req, res, next) => {
     });
 };
 
-module.exports.createCard = (req, res, next) => {
+module.exports.createCard = async (req, res, next) => {
   const owner = req.user._id;
   const { name, link } = req.body;
-  Сard
-    .create({ name, link, owner })
-    .then((data) => res.status(STATUS__OK).send(data))
+
+  const card = await Сard.create({ name, link, owner });
+  card
+    .populate('owner')
+    .then((data) => {
+      res.status(STATUS__OK).send(data);
+    })
     .catch((e) => {
       if (e.name === 'ValidationError') {
         next(new BadRequestError('Переданые некорректные данные'));
@@ -68,6 +72,7 @@ module.exports.likeCard = (req, res, next) => {
       { $addToSet: { likes: req.user._id } },
       { new: true },
     )
+    .populate(['likes', 'owner'])
     .orFail(() => {
       throw new NotFoundError('Передан невалидный id пользователя');
     })
@@ -93,6 +98,7 @@ module.exports.dislikeCard = (req, res, next) => {
     .orFail(() => {
       throw new NotFoundError('Передан невалидный id пользователя');
     })
+    .populate(['likes', 'owner'])
     .then((data) => res.status(STATUS__OK).send(data))
     .catch((e) => {
       if (e.name === 'CastError') {
