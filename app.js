@@ -22,7 +22,9 @@ const options = {
   origin: [
     'http://localhost:3000',
     'https://mesto479.nomoredomains.club',
+    'http://mesto479.nomoredomains.club',
     'https://api.mesto479.nomoredomains.club',
+    'http://api.mesto479.nomoredomains.club',
     'https://tale245.github.io',
   ],
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
